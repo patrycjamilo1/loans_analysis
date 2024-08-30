@@ -1,0 +1,485 @@
+---
+title: "Statystyczna analiza danych - Projekt"
+author: "Patrycja Milo"
+date: "27.05.2024"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+  pdf_document: default
+---
+
+Dane zostały pobrane ze strony Kaggle: [Loan Default Dataset](https://www.kaggle.com/datasets/yasserh/loan-default-dataset). Dane zawarte w zbiorze dotyczą pożyczek udzielanych przez banki. Banki gromadzą różnorodne informacje na temat swoich klientów oraz pożyczek, aby podejmować świadome decyzje i skutecznie zarządzać ryzykiem. Cechy, które wybrałam do analizy, to kwota pożyczki, którą klient chce pożyczyć oraz dochód klienta.
+
+## Załadowanie potrzebnych bibliotek
+```{r, echo=TRUE, message=FALSE}
+library(dplyr)
+library(DescTools)
+library(moments)
+library(openxlsx)
+```
+
+
+# Przygotowanie danych 
+Ten kod wczytuje dane z pliku CSV, a następnie tworzy nowy zestaw danych, usuwając wiersze z brakującymi wartościami i wybierając tylko pierwsze 1000 wierszy oraz dwie kolumny: "kwota_pozyczki" (kwota pożyczki) i "dochod" (dochód).
+
+```{r}
+dane_pozyczki <- read.csv("C:/Users/vanae/Desktop/loans_static_analysis_project/loans_data.csv")
+przygotowane_dane <- na.omit(dane_pozyczki[1:1000, c("loan_amount", "income")])
+names(przygotowane_dane) <- c("kwota_pozyczki", "dochod")
+```
+# Wyznaczenie podstawowych parametrów opisowych
+## Dla cechy "kwota pożyczki" 
+
+##### Średnia
+```{r}
+srednia_kwota_pozyczki <- mean(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(srednia_kwota_pozyczki)
+```
+
+
+##### Odchylenie standardowe
+```{r}
+odch_stand_kwota_pozyczki <- sd(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(odch_stand_kwota_pozyczki)
+```
+
+##### Mediana
+```{r}
+mediana_kwota_pozyczki <- median(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(mediana_kwota_pozyczki)
+```
+
+##### Minimum
+```{r}
+min_kwota_pozyczki <- min(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(min_kwota_pozyczki)
+```
+
+##### Maksimum
+```{r}
+max_kwota_pozyczki <- max(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(max_kwota_pozyczki)
+```
+
+##### Kwartyle
+```{r}
+kwantyle_kwota_pozyczki <- quantile(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+kwantyle_kwota_pozyczki
+```
+
+##### Współczynnik zmienności
+```{r}
+wsp_zmien_kwota_pozyczki <- odch_stand_kwota_pozyczki/srednia_kwota_pozyczki*100
+```
+```{r, echo = FALSE}
+cat(wsp_zmien_kwota_pozyczki)
+```
+
+##### Dominanta
+```{r}
+dominanta_kwota_pozyczki <- Mode(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(dominanta_kwota_pozyczki)
+```
+
+##### Wariancja
+```{r}
+war_kwota_pozyczki <- var(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(war_kwota_pozyczki)
+```
+
+##### Wskaźnik asymetrii
+```{r}
+wskaz_asym_kwota_pozyczki <- skewness(przygotowane_dane$kwota_pozyczki)
+```
+```{r, echo = FALSE}
+cat(wskaz_asym_kwota_pozyczki)
+```
+
+##### Trzeci moment centralny
+```{r}
+moment_kwota_pozyczki <- moment(przygotowane_dane$kwota_pozyczki, 3)
+```
+```{r, echo = FALSE}
+cat(moment_kwota_pozyczki)
+```
+
+# Podsumowanie dla podstawowych parametrów kwoty pożyczki
+
+Analiza kwoty pożyczki wykazała, że średnia wynosiła około $332,777.1, z odchyleniem standardowym w wysokości $184,117.4, co świadczy o znacznej zmienności wokół średniej. Mediana kwoty pożyczki wynosiła $306,500, co sugeruje, że połowa próby miała niższą kwotę pożyczki, a druga połowa wyższą. Dominanta, czyli najczęściej występująca wartość, wynosiła $156,500. Współczynnik zmienności wyniósł około 55.33%, co sugeruje umiarkowany poziom zmienności w stosunku do średniej wartości. Dodatni wskaźnik asymetrii (około 1.51) wskazuje na skośny rozkład danych w prawo, co oznacza tendencję do większych kwot pożyczek.
+
+## Dla cechy "dochód" 
+
+##### Średnia
+```{r}
+srednia_dochod <- mean(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(srednia_dochod)
+```
+
+##### Odchylenie standardowe
+```{r}
+odchyl_stand_dochod <- sd(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(odchyl_stand_dochod)
+```
+
+##### Mediana
+```{r}
+mediana_dochod <- median(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(mediana_dochod)
+```
+##### Minimum
+```{r}
+min_dochod <- min(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(min_dochod)
+```
+
+##### Maksimum
+```{r}
+max_dochod <- max(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(max_dochod)
+```
+
+##### Kwantyle
+```{r}
+kwantyle_dochod <- quantile(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+kwantyle_dochod
+```
+
+##### Współczynnik zmienności
+```{r}
+wspol_zmien_dochod <- odchyl_stand_dochod/srednia_dochod*100
+```
+```{r, echo = FALSE}
+cat(wspol_zmien_dochod)
+```
+
+##### Dominanta
+```{r}
+dominanta_dochod <- Mode(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(dominanta_dochod)
+```
+
+##### Wariancja
+```{r}
+war_dochod <- var(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(war_dochod)
+```
+
+##### Wskaźnik asymetrii
+```{r}
+wskaz_asym_dochod <- skewness(przygotowane_dane$dochod)
+```
+```{r, echo = FALSE}
+cat(wskaz_asym_dochod)
+```
+
+##### Trzeci moment centralny
+```{r}
+moment_dochod <- moment(przygotowane_dane$dochod, 3)
+```
+```{r, echo = FALSE}
+cat(moment_dochod)
+```
+
+## Podsumowanie dla podstawowych parametrów dochodu
+
+Analiza dochodów klientów wykazała, że średni dochód wynosił około $6910.768, z dużym odchyleniem standardowym ($5759.665), co świadczy o znacznej zmienności w dochodach. Mediana dochodu była niższa i wynosiła $5700. Maksymalny dochód wynosił $78120, a minimalny $0, co wskazuje na różnorodność dochodów w badanej grupie. Współczynnik zmienności wynoszący około 83.34% oraz dodatni wskaźnik asymetrii (około 5.43) sugerują dużą zmienność i skośność rozkładu dochodów w prawo.
+
+\newpage
+# Graficzna prezentacja danych
+## Histogram
+```{r}
+histogram_kwota_pozyczki <- hist(przygotowane_dane$kwota_pozyczki,
+                                 breaks = 50, 
+                                 main = "Histogram pobranych pożyczek w 2019",
+                                 xlab = "Pożyczona kwota w $",
+                                 ylab = "Częstość",
+                                 col = "#F5ACCB")
+
+abline(v = mean(przygotowane_dane$kwota_pozyczki), col = "red", lwd = 2)
+abline(v = median(przygotowane_dane$kwota_pozyczki), col = "blue", lwd = 2)
+legend("topright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2)
+
+```
+
+W 2019 roku większość pożyczek była zaciągana na niskie kwoty, głównie między 100 000 a 400 000 dolarów. Rozkład jest skośny w prawo, co oznacza, że występuje kilka bardzo wysokich kwot pożyczek. Średnia (czerwona linia) jest wyższa niż mediana (niebieska linia), co wskazuje na wpływ kilku bardzo wysokich pożyczek na średnią wartość. Najwięcej pożyczek zaciągnięto na kwoty około 300 000 dolarów.
+
+\newpage
+```{r}
+histogram_dochod <- hist(przygotowane_dane$dochod,
+                         breaks = 50,  
+                         main = "Histogram dochodów w 2019",
+                         xlab = "Dochód w $",
+                         ylab = "Częstość",
+                         col = "#A6CEE3")
+
+abline(v = mean(przygotowane_dane$dochod), col = "red", lwd = 2)
+abline(v = median(przygotowane_dane$dochod), col = "blue", lwd = 2)
+legend("topright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2)
+
+```
+
+Histogram dochodów w 2019 roku pokazuje, że większość dochodów jest niska, skoncentrowana poniżej 20 000 dolarów. Rozkład jest prawostronnie asymetryczny, z niewielką liczbą wysokich dochodów powyżej 20 000 dolarów. Średnia dochodów (czerwona linia) jest wyższa od mediany (niebieska linia), co oznacza, że wysokie dochody kilku osób podnoszą średnią.
+
+
+\newpage
+## Wykres pudełkowy
+```{r,fig.width=7, fig.height=7}
+pudełkowy_kwota_pozyczki <- boxplot(przygotowane_dane$kwota_pozyczki,
+                                    main = "Wykres pudełkowy pożyczek",
+                                    ylab = "Pożyczona kwota w $",
+                                    col = "#C9A2BF",
+                                    outline = TRUE)  # Wyświetlanie wartości odstających
+
+average_value <- mean(przygotowane_dane$kwota_pozyczki)
+abline(h = average_value, col = "red", lwd = 2)
+legend("topright", legend = c("Średnia"), col = c("red"), lwd = 2)
+
+```
+
+Wykres pudełkowy pożyczek pokazuje, że większość pożyczonych kwot waha się między około 250 000 a 750 000 dolarów, co wskazuje na rozpiętość między pierwszym a trzecim kwartylem. Mediana pożyczek (środkowa linia w pudełku) jest poniżej średniej (czerwona linia), co sugeruje, że rozkład jest prawostronnie asymetryczny. Widoczne są również liczne wartości odstające powyżej 1 000 000 dolarów, co wskazuje na obecność kilku bardzo wysokich pożyczek.
+
+
+\newpage
+```{r, fig.width=7, fig.height=7}
+pudełkowy_dochod <- boxplot(przygotowane_dane$dochod,
+                            main = "Wykres pudełkowy dochodów",
+                            ylab = "Dochód w $",
+                            col = "#B2DF8A",
+                            outline = TRUE)  
+
+average_dochod <- mean(przygotowane_dane$dochod)
+abline(h = average_dochod, col = "red", lwd = 2)
+legend("topright", legend = c("Średnia"), col = c("red"), lwd = 2)
+
+```
+
+Wykres pudełkowy dochodów pokazuje, że większość dochodów mieści się między około 5 000 a 15 000 dolarów. Mediana dochodów (środkowa linia w pudełku) jest poniżej średniej (czerwona linia), co sugeruje prawostronną asymetrię rozkładu. Widoczna jest również duża liczba wartości odstających powyżej 20 000 dolarów, co wskazuje na obecność kilku bardzo wysokich dochodów.
+
+
+\newpage
+## Dystrybuanta
+
+```{r, fig.width=7, fig.height=7}
+dystrybuanta_kwota_pozyczki <- plot(ecdf(przygotowane_dane$kwota_pozyczki),
+                                    main = "Dystrybuanta pożyczek",
+                                    xlab = "Pożyczona kwota w $",
+                                    ylab = "Dystrybuanta",
+                                    col = "#1F78B4",  
+                                    lwd = 2) 
+
+grid()
+abline(v = mean(przygotowane_dane$kwota_pozyczki), col = "red", lwd = 2, lty = 2)  
+abline(v = median(przygotowane_dane$kwota_pozyczki), col = "blue", lwd = 2, lty = 2)  
+legend("bottomright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2, lty = 2)
+
+```
+
+Wykres przedstawia dystrybuantę kwot pożyczek. Średnia wartość pożyczki wynosi około 250 tysięcy dolarów (czerwona linia przerywana), natomiast mediana to około 150 tysięcy dolarów (niebieska linia przerywana). Sugeruje to, że rozkład pożyczek jest prawoskośny, gdzie większość pożyczek jest niższa od średniej, ale istnieją pojedyncze, bardzo wysokie kwoty pożyczek, które podnoszą średnią wartość.
+
+
+\newpage
+```{r, fig.width=7, fig.height=7}
+dystrybuanta_dochod <- plot(ecdf(przygotowane_dane$dochod),
+                            main = "Dystrybuanta dochodów",
+                            xlab = "Dochód w $",
+                            ylab = "Dystrybuanta",
+                            col = "#33A02C",  
+                            lwd = 2) 
+
+grid()
+abline(v = mean(przygotowane_dane$dochod), col = "red", lwd = 2, lty = 2)  
+abline(v = median(przygotowane_dane$dochod), col = "blue", lwd = 2, lty = 2)  
+legend("bottomright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2, lty = 2)
+
+```
+
+Wykres przedstawia dystrybuantę dochodów. Średnia wartość dochodu wynosi około 25 tysięcy dolarów (czerwona linia przerywana), natomiast mediana to około 20 tysięcy dolarów (niebieska linia przerywana). Wskazuje to, że rozkład dochodów jest prawoskośny, co oznacza, że większość osób zarabia mniej niż średnia, a kilka osób z wyższymi dochodami podnosi średnią wartość.
+
+
+\newpage
+## Gęstość
+```{r, fig.width=7, fig.height=7}
+
+gęstość_kwota_pozyczki <- plot(density(przygotowane_dane$kwota_pozyczki), 
+                               main = "Funkcja gęstości pożyczek",
+                               xlab = "Pożyczona kwota w $",
+                               ylab = "Gęstość",
+                               col = "#FF7F00",
+                               lwd = 2) 
+
+grid()
+average_kwota_pozyczki <- mean(przygotowane_dane$kwota_pozyczki)
+median_kwota_pozyczki <- median(przygotowane_dane$kwota_pozyczki)
+abline(v = average_kwota_pozyczki, col = "red", lwd = 2, lty = 2)  
+abline(v = median_kwota_pozyczki, col = "blue", lwd = 2, lty = 2)  
+legend("topright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2, lty = 2)
+
+```
+
+Wykres przedstawia funkcję gęstości rozkładu kwot pożyczek. Większość pożyczek koncentruje się wokół mediany (około 150 tysięcy dolarów, niebieska linia przerywana) oraz średniej (około 250 tysięcy dolarów, czerwona linia przerywana). Rozkład jest prawoskośny, co wskazuje na mniejszą liczbę pożyczek o bardzo wysokich kwotach, które wpływają na podwyższenie średniej.
+
+
+\newpage
+```{r, fig.width=7, fig.height=7}
+gęstość_dochod <- plot(density(przygotowane_dane$dochod), 
+                       main = "Funkcja gęstości dochodów",
+                       xlab = "Dochód w $",
+                       ylab = "Gęstość",
+                       col = "#6A3D9A",
+                       lwd = 2) 
+
+grid()
+average_dochod <- mean(przygotowane_dane$dochod)
+median_dochod <- median(przygotowane_dane$dochod)
+abline(v = average_dochod, col = "red", lwd = 2, lty = 2)
+abline(v = median_dochod, col = "blue", lwd = 2, lty = 2)
+legend("topright", legend = c("Średnia", "Mediana"), col = c("red", "blue"), lwd = 2, lty = 2)
+
+```
+
+Wykres przedstawia rozkład dochodów, który jest asymetryczny i prawoskośny. Większość dochodów koncentruje się w niższych przedziałach, z długim ogonem w kierunku wyższych wartości. Średnia dochodów (czerwona linia) jest wyższa od mediany (niebieska linia), co wskazuje na wpływ wysokich dochodów na średnią. Większość dochodów znajduje się poniżej 20 000 dolarów.
+
+
+\newpage
+## Wykres punktowy
+```{r, fig.width=7, fig.height = 7}
+model <- lm(dochod ~ kwota_pozyczki, data = przygotowane_dane)
+
+plot(przygotowane_dane$kwota_pozyczki, przygotowane_dane$dochod,
+     xlab = "Pożyczka ($)", ylab = "Dochód ($)",
+     main = "Zależność Dochodu od Kwoty Pożyczki",
+     col = rgb(0.2, 0.4, 0.6, 0.6), pch = 16)  
+
+abline(model, col = "red", lwd = 2)
+predicted_values <- predict(model, interval = "confidence")
+lines(przygotowane_dane$kwota_pozyczki, predicted_values[, "lwr"], col = "blue", lwd = 1, lty = 2)
+lines(przygotowane_dane$kwota_pozyczki, predicted_values[, "upr"], col = "blue", lwd = 1, lty = 2)
+legend("topright", legend = c("Punkty danych", "Linia regresji", "Interwały ufności"),
+       col = c(rgb(0.2, 0.4, 0.6, 0.6), "red", "blue"), pch = c(16, NA, NA), lty = c(NA, 1, 2), lwd = c(NA, 2, 1))
+```
+
+Wykres przedstawia zależność dochodu od kwoty pożyczki. Widoczna jest dodatnia korelacja między tymi zmiennymi, co oznacza, że wyższy dochód wiąże się z wyższą kwotą pożyczki. Linia regresji (czerwona) i wąskie przedziały ufności (niebieskie linie przerywane) wskazują na stosunkowo dobrą przewidywalność dochodu na podstawie kwoty pożyczki, choć istnieją pewne odchylenia, zwłaszcza dla wyższych wartości.
+
+### Podsumowanie dla graficznej prezentacji danych
+#### Analiza wykresów dla dochodów
+Analiza wykresów dochodów sugeruje, że większość obserwacji koncentruje się w niższych przedziałach, głównie poniżej 20 000 dolarów, co wskazuje na istnienie pewnej grupy osób zarabiających znacznie mniej niż reszta. Rozkład jest prawostronnie asymetryczny, co oznacza, że istnieje kilka osób z wyższymi dochodami, które znacząco podnoszą ogólną średnią wartość dochodów. Wartość mediany jest niższa od średniej, co sugeruje, że rozkład ten może być mocno wpływany przez kilka osób z bardzo wysokimi dochodami, co oznacza, że jednostki te mogą stanowić mniejszy procent populacji, ale mają znaczący wpływ na ogólny rozkład dochodów.
+
+#### Analiza wykresów dla kwoty pożyczki
+Analiza wykresów kwot pożyczek ujawnia rozpiętość tych kwot, z większością pożyczek mieszczących się w przedziale między około 250 000 a 750 000 dolarów. Rozkład ten również jest prawostronnie asymetryczny, co sugeruje, że istnieje kilka bardzo wysokich pożyczek, które znacznie podnoszą ogólną średnią kwotę pożyczek. Mediana jest niższa od średniej, co wskazuje na obecność wartości odstających w prawo, co może być efektem kilku bardzo wysokich pożyczek. Jednakże, nawet pomimo obecności tych wartości odstających, większość pożyczek skupia się w niższych przedziałach, co może być interpretowane jako istnienie grupy klientów preferujących niższe kwoty pożyczek.
+
+\newpage
+## Hipoteza 1: Średnia kwota pożyczki jest równa medianie kwoty pożyczki
+
+Hipoteza zerowa (H0): Średnia kwota pożyczki jest równa medianie pożyczki
+Hipoteza alternatywna (H1): Średnia kwota pożyczki nie jest równa medianie pożyczki
+
+```{r}
+t.test(przygotowane_dane$kwota_pozyczki, mu = mediana_kwota_pozyczki, conf.level = 0.95)
+
+```
+Analiza wyniku testu t-Studenta dla danych dotyczących kwot pożyczek wykazała istotne statystycznie różnice między średnią kwotą pożyczki a wartością referencyjną 306500. Wynik testu (t = 4.3383, df = 923, p < 0.05) sugeruje, że prawdziwa średnia kwoty pożyczki nie jest równa 306500. Przedział ufności dla średniej kwoty pożyczki wynosi od 320889.9 do 344664.2 z 95% pewnością. Średnia kwota pożyczki wynosi 332777.1. Ostatecznie, istnieje istotna różnica między średnią kwotą pożyczki a wartością referencyjną, co potwierdza wynik testu na poziomie istotności alfa = 0.05.
+
+\newpage
+## Hipoteza 2: Hipoteza dotycząca współczynnika korelacji
+
+Hipoteza zerowa (H0): Nie ma korelacji między kwotą pożyczki a dochodem klientów.
+Hipoteza alternatywna (H1): Istnieje korelacja między kwotą pożyczki a dochodem klientów.
+
+```{r}
+cor.test(przygotowane_dane$kwota_pozyczki, przygotowane_dane$dochod, conf.level = 0.95)
+
+```
+Analiza korelacji Pearsona pomiędzy kwotą pożyczki a dochodem klientów wykazała istotne statystycznie dodatnie powiązanie między tymi zmiennymi. Wynik testu (t = 18.334, df = 922, p < 2.2e-16) sugeruje odrzucenie hipotezy zerowej, co potwierdza istnienie korelacji. Wartość współczynnika korelacji wynosi 0.517, co wskazuje na umiarkowaną dodatnią zależność między kwotą pożyczki a dochodem klientów. Przedział ufności dla współczynnika korelacji (0.468 do 0.563) potwierdza istotność tego wyniku z 95% pewnością. Ostatecznie, analiza sugeruje, że osoby z wyższym dochodem mają tendencję do zaciągania wyższych pożyczek, co jest istotne statystycznie.
+
+\newpage
+## Hipoteza 3: Średni dochód klientów z wyższą kwotą pożyczki (> 500,000) jest większy niż średni dochód klientów z niższą kwotą pożyczki (<= 500,000)
+
+Hipoteza zerowa (H0): Średni dochód klientów z wyższą kwotą pożyczki jest mniejszy lub równy średniemu dochodowi klientów z niższą kwotą pożyczki.
+Hipoteza alternatywna (H1): Średni dochód klientów z wyższą kwotą pożyczki jest większy niż średni dochód klientów z niższą kwotą pożyczki.
+
+```{r}
+wysokie_dochody_pozyczka <- przygotowane_dane$dochod[przygotowane_dane$kwota_pozyczki > 500000]
+niskie_dochody_pozyczka <- przygotowane_dane$dochod[przygotowane_dane$kwota_pozyczki <= 500000]
+t.test(wysokie_dochody_pozyczka, niskie_dochody_pozyczka, alternative = "greater", conf.level = 0.95)
+
+```
+Analiza testu t-Studenta Welch'a na danych dotyczących dochodów klientów z różnymi kwotami pożyczek wykazała istotne statystycznie różnice między grupami. Średni dochód klientów z wyższą kwotą pożyczki wynosił 11320.274, co jest istotnie wyższe od średniego dochodu klientów z niższą kwotą pożyczki (6083.278). Wartość p-value wynosi 5.382e-13, co jest znacznie niższe niż ustalony poziom istotności alfa = 0.05, potwierdzając istotność wyników. Przedział ufności dla różnicy między średnimi dochodami wskazuje, że różnica jest istotna i sięga od 4114.099 do nieskończoności dla wyższych dochodów z 95% pewnością. Ostatecznie można stwierdzić, że istnieje statystycznie istotna różnica w średnich dochodach klientów z różnymi kwotami pożyczek, przy czym średni dochód klientów z wyższą kwotą pożyczki jest istotnie wyższy niż średni dochód klientów z niższą kwotą pożyczki.
+
+\newpage
+## Opis użytych funkcji środowiska R:
+
+```
+Funkcja read.csv() służy do odczytywania danych z plików CSV do środowiska R. W powyższym kodzie jest używana do wczytania danych z pliku CSV do zmiennej dane_pozyczki.
+
+Funkcja na.omit() usuwa wiersze zawierające brakujące wartości z danego obiektu danych. Jest stosowana do przetwarzania danych w zmiennej przygotowane_dane, usuwając wiersze zawierające brakujące wartości.
+
+Funkcja mean() oblicza średnią wartość z wektora liczb. Jest wykorzystywana do obliczenia średniej kwoty pożyczki oraz średniego dochodu.
+
+Funkcja sd() oblicza odchylenie standardowe próbki. W kodzie jest używana do obliczenia odchylenia standardowego kwoty pożyczki oraz dochodu.
+
+Funkcja median() oblicza medianę wektora liczb. Jest wykorzystywana do obliczenia mediany kwoty pożyczki oraz mediany dochodu.
+
+Funkcja min() zwraca najmniejszą wartość wektora liczb. Jest używana do znalezienia minimalnej wartości kwoty pożyczki oraz dochodu.
+
+Funkcja max() zwraca największą wartość wektora liczb. Jest wykorzystywana do znalezienia maksymalnej wartości kwoty pożyczki oraz dochodu.
+
+Funkcja quantile() oblicza kwantyle danego wektora danych. Jest stosowana do obliczenia kwantyli kwoty pożyczki.
+
+Funkcja Mode() zwraca dominującą (najczęściej występującą) wartość w wektorze danych. W kodzie jest używana do znalezienia dominującej wartości kwoty pożyczki.
+
+Funkcja var() oblicza wariancję próbki. Jest stosowana do obliczenia wariancji kwoty pożyczki oraz dochodu.
+
+Funkcja skewness() oblicza wskaźnik asymetrii próbki. Jest wykorzystywana do obliczenia wskaźnika asymetrii kwoty pożyczki oraz dochodu.
+
+Funkcja moment() oblicza moment danego rzędu dla próbki. W kodzie jest używana do obliczenia trzeciego momentu centralnego kwoty pożyczki oraz dochodu.
+
+Funkcja hist(): Generuje histogram dla danych numerycznych. Parametry breaks, main, xlab, ylab i col kontrolują odpowiednio liczbę przedziałów, tytuł główny, etykiety osi x i y oraz kolor słupków histogramu.
+
+Funkcja abline(): Dodaje linie na wykresie. W tym przypadku używana jest do dodania linii o wartościach średniej i mediany do histogramu. Parametr v określa poziomą pozycję linii, col ustawia kolor linii, a lwd kontroluje grubość.
+
+Funkcja legend(): Dodaje legendę do wykresu. Parametr legend zawiera etykiety, col określa kolory, a lwd kontroluje grubość linii.
+
+Funkcja boxplot(): Generuje wykres pudełkowy dla danych numerycznych. Parametry main, ylab, col i outline kontrolują odpowiednio tytuł główny, etykiety osi y, kolor pudełek i wyświetlanie wartości odstających.
+
+Funkcja ecdf(): Oblicza dystrybuantę empiryczną dla danych numerycznych.
+
+Funkcja plot(): Rysuje wykres punktowy lub liniowy. W tym kodzie używana jest do rysowania dystrybuanty oraz wykresu punktowego. Parametry main, xlab, ylab, col, lwd i pch kontrolują odpowiednio tytuł główny, etykiety osi x i y, kolor, grubość linii oraz typ punktów.
+
+Funkcja density(): Oblicza funkcję gęstości dla danych numerycznych.
+
+Funkcja lm(): Tworzy model liniowy na podstawie danych. Jest używana do obliczenia regresji liniowej.
+```
+
